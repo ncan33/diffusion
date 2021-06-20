@@ -97,20 +97,52 @@ L1_vol = np.zeros(szt)
 L2_vol = np.zeros(szt)
 L3_vol = np.zeros(szt)
 
-'''
+
 for ii in range(szt[0]):
     for jj in range(szt[1]):
         for kk in range(szt[2]):
             if mask_all[ii,jj,kk]:
                 tensor_vox = np.squeeze(ten[ii,jj,kk,:])
-'''
 
+                tensor_mtx = np.zeros((3,3))
+                tensor_mtx[0,0] = tensor_vox[0]
+                tensor_mtx[0,1] , tensor_mtx[1,0] = tensor_vox[1] , tensor_vox[1]
+                tensor_mtx[0,2] , tensor_mtx[2,0] = tensor_vox[2] , tensor_vox[2]
+                tensor_mtx[1,1] = tensor_vox[3]
+                tensor_mtx[1,2] , tensor_mtx[2,1] = tensor_vox[4] , tensor_vox[4]
+                tensor_mtx[2,2] = tensor_vox[5]
+
+                D,V = linalg.eig(tensor_mtx)
+                MD = np.mean(D)
+                FA = np.sqrt(np.sum((D-MD)**2)) / np.sqrt(np.sum(D**2)) * (1.5**0.5)
+
+                FA_vol[ii,jj,kk] = FA
+                MD_vol[ii,jj,kk] = MD
+                RD_vol[ii,jj,kk] = np.mean(D[0:1])
+                V1_vol[ii,jj,kk,:] = V[:,2]
+                V2_vol[ii,jj,kk,:] = V[:,1]
+                V3_vol[ii,jj,kk,:] = V[:,0]
+                L1_vol[ii,jj,kk] = D[2]
+                L2_vol[ii,jj,kk] = D[1]
+                L3_vol[ii,jj,kk] = D[0]
+
+nib.save(nib.Nifti1Image(FA_vol,None), 'FA.nii')
+nib.save(nib.Nifti1Image(MD_vol,None), 'MD.nii')
+nib.save(nib.Nifti1Image(RD_vol,None), 'RD.nii')
+nib.save(nib.Nifti1Image(L1_vol,None), 'L1.nii')
+nib.save(nib.Nifti1Image(L2_vol,None), 'L2.nii')
+nib.save(nib.Nifti1Image(L3_vol,None), 'L3.nii')
+nib.save(nib.Nifti1Image(V1_vol,None), 'V1.nii')
+nib.save(nib.Nifti1Image(V2_vol,None), 'V2.nii')
+nib.save(nib.Nifti1Image(V3_vol,None), 'V3.nii')
+
+'''
 # test:
-dwis_synth_dict = sio.loadmat('dwis_synth.mat')
-dwis_synth_mat = dwis_synth_dict['dwis_synth']
+FA_vol_dict = sio.loadmat('FA_vol.mat')
+FA_vol_mat = FA_vol_dict['FA_vol']
 
 counter = 0
-ans2 = dwis_synth - dwis_synth_mat
+ans2 = FA_vol - FA_vol_mat
 ans_flat = ans2.flatten()
 test = True
 for i in ans_flat:
@@ -118,8 +150,9 @@ for i in ans_flat:
         test = False
         counter = counter + 1
 if test == True:
-    print("You're good for dwis_synth!")
+    print("You're good for FA_vol!")
 else:
     print("Oops!")
 
 print('You messed up ',str(counter),' number of times.')
+'''

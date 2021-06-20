@@ -103,3 +103,25 @@ else: #for when the b-values are different for each DWI, we must do more than ju
     bval_dwi_vol = np.stack(stack_this,axis=3) #convert that list to np.ndarray
     adc = np.divide(-np.log(np.divide(dwis, b0_4d)), bval_dwi_vol)
 '''
+
+#My last test:
+'''
+# test:
+FA_vol_dict = sio.loadmat('FA_vol.mat')
+FA_vol_mat = FA_vol_dict['FA_vol']
+
+counter = 0
+ans2 = FA_vol - FA_vol_mat
+ans_flat = ans2.flatten()
+test = True
+for i in ans_flat:
+    if i>0.0000000001 or i<-0.0000000001:
+        test = False
+        counter = counter + 1
+if test == True:
+    print("You're good for FA_vol!")
+else:
+    print("Oops!")
+
+print('You messed up ',str(counter),' number of times.')
+'''
