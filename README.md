@@ -1,3 +1,3 @@
-# diffusion
+# Linear least squares tensor fitting for Diffusion Weighted Imaging (DWI)
 
-python diffusion mri data interface
+Run '''s_tensor_fit.py''' on raw DWI acquisition to get diffusion parameters
